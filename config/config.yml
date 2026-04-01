@@ -1,0 +1,12 @@
+paths:
+  input_file: "input/BBTD_transformed_06_2025_v2_complet.xlsx"
+  output_prevalence: "output/prevalence_per_farm.csv"
+
+settings:
+  year: 2025
+
+columns:
+  id: "Unique_Field_ID"
+  lon: "Longitude"
+  lat: "Latitude"
+  disease: "Disease_state"
