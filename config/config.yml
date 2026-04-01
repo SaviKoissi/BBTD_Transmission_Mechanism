@@ -1,8 +1,10 @@
 paths:
   input_file: "input/BBTD_transformed_06_2025_v2_complet.xlsx"
   input_hist: "input/banana_wave_2018.csv"
+  input_shpf: "input/BEN/ben_admbnda_adm2_1m_salb_20190816.shp"
   output_prevalence: "output/prevalence_per_farm.csv"
   output_prevalence_hist: "output/prevalence_per_farm_hist.csv"
+  output_prevalence_fulData: "output/fullData.csv"
 
 columns:
   id: "Unique_Field_ID"

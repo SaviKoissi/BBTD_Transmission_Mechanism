@@ -5,16 +5,21 @@
 
 merge_prevalence <- function(current, historical) {
   
-  # Ensure same column names & types
+  # Harmonize ID type
+  current <- current %>%
+    mutate(Unique_Field_ID = as.character(Unique_Field_ID))
+  
+  historical <- historical %>%
+    mutate(Unique_Field_ID = as.character(Unique_Field_ID))
+  
+  # Keep common columns
   common_cols <- intersect(names(current), names(historical))
   
   current <- current %>% select(all_of(common_cols))
   historical <- historical %>% select(all_of(common_cols))
   
-  # Bind rows (stack datasets)
+  # Merge
   merged <- bind_rows(current, historical) %>%
-    
-    # Optional: remove duplicates if same farm-year appears twice
     distinct(Unique_Field_ID, year, .keep_all = TRUE)
   
   return(merged)

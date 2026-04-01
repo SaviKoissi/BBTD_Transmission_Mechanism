@@ -15,4 +15,12 @@ source("scripts/hist_data.R")
 source("scripts/merge_prevalence.R")
 data_fullData <- merge_prevalence(prevalence_per_farm, 
                                   prevalence_per_farm_hist)
+source("scripts/fill_department.R")
 
+data_fullData <- fill_missing_department(
+  data_fullData,
+  benin_shp
+)
+
+write.csv(data_fullData, config$paths$output_prevalence,
+          row.names = FALSE)
