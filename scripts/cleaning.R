@@ -156,7 +156,11 @@ mutate(
 mutate(
   across(where(is.character), as.factor),
   Disease_state = as.factor(Disease_state)
-)
+) %>% 
+  # ------ Add year of data collection ---
+  mutate(
+    year = 2025
+  )
 
 # ----------------------------------------------------------
 # 3. SPATIAL VERSION (optional)

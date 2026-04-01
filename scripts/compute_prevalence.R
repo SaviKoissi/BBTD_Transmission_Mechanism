@@ -9,9 +9,10 @@ compute_prevalence <- function(data, config) {
         config$columns$id,
         config$columns$lon,
         config$columns$lat,
-        "Departement",
-        config$columns$disease,
-        "Location", "Fieldsize", "PlantationAge"
+        config$columns$year,
+        "Departement", 
+        config$columns$disease#,
+        #"Location", "Fieldsize", "PlantationAge"
       ))
     ) %>%
     dplyr::group_by(
@@ -19,7 +20,8 @@ compute_prevalence <- function(data, config) {
         all_of(config$columns$id),
         all_of(config$columns$lon),
         all_of(config$columns$lat),
-        Departement, Location, Fieldsize, PlantationAge
+        all_of(config$columns$year),
+        Departement#, Location, Fieldsize, PlantationAge
       ))
     ) %>%
     dplyr::summarise(
