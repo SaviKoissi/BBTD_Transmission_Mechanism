@@ -1,5 +1,6 @@
 paths:
   input_file: "input/BBTD_transformed_06_2025_v2_complet.xlsx"
+  input_hist: "input/banana_wave_2018.csv"
   output_prevalence: "output/prevalence_per_farm.csv"
 
 settings:
@@ -10,3 +11,5 @@ columns:
   lon: "Longitude"
   lat: "Latitude"
   disease: "Disease_state"
+  
+  
