@@ -92,13 +92,13 @@ project/
 * Ensures consistency across datasets
 * Prepares inputs for downstream analysis
 
-### 6.2 Historical Data Processing (scripts/hist_data.R)
+### 6.2 Historical Data Processing (`scripts/hist_data.R`)
 
 * Processes archival datasets
 * Aligns temporal and spatial identifiers
 * Enables longitudinal comparisons
 
-### 6.3 Spatial Utilities (scripts/spatial_utils.R)
+### 6.3 Spatial Utilities (`scripts/spatial_utils.R`)
 
 * Handles shapefile operations
 * Maps farms to geographic regions
