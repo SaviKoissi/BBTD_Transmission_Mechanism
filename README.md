@@ -23,8 +23,8 @@ project/
 │   └── maps/
 │
 ├── scripts/
-│   ├── data_cleaning.R
-│   ├── hist_data_cleaning.R
+│   ├── cleaning.R
+│   ├── hist_data.R
 │   ├── compute_prevalence.R
 │   ├── merge.R
 │   ├── fill_department.R
