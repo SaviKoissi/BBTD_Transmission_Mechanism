@@ -1,5 +1,5 @@
 # ==========================================================
-# RUN THE PIPELINE
+# RUN DATA RELATED PIPELINE
 # ==========================================================
 
 source("R/libraries.R")
@@ -31,6 +31,6 @@ source("scripts/bias_adjusted_prevalence.R")
 # data_fullData = your merged dataset
 fit_obj <- run_model(data_fullData)
 
-posterior_prev <- extract_prevalence(fit_obj)
+posterior_prev <- extract_prevalence(fit_obj, data_fullData)
 
-write.csv(data_with_results, "output/bayesian_prevalence.csv", row.names = FALSE)
+write.csv(posterior_prev, "output/bayesian_prevalence.csv", row.names = FALSE)

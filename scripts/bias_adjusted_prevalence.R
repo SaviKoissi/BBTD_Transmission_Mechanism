@@ -87,7 +87,7 @@ run_model <- function(data) {
 # POSTERIOR EXTRACTION
 # ==========================================================
 
-extract_and_merge_prevalence <- function(fit_obj, original_sf_data) {
+extract_prevalence <- function(fit_obj, original_sf_data) {
   
   fit <- fit_obj$fit
   
@@ -133,8 +133,8 @@ extract_and_merge_prevalence <- function(fit_obj, original_sf_data) {
   return(final_data)
 }
 
-# --- Execution ---
-data_with_results <- extract_and_merge_prevalence(fit_obj, data_fullData)
-
-# Check the first few rows
-head(data_with_results %>% select(Unique_Field_ID, true_prev_median, true_prev_lower))
+# # --- Execution ---
+# data_with_results <- extract_prevalence(fit_obj, data_fullData)
+# 
+# # Check the first few rows
+# head(data_with_results %>% select(Unique_Field_ID, true_prev_median, true_prev_lower))

@@ -1,0 +1,15 @@
+phase1:
+  year_initial: 2012
+  year_observed: 2025
+  distance_method: euclidean
+  adjacency_mode: topological
+  knn_k: 4
+
+spatial:
+  projection: NA
+  use_latlon: true
+
+metrics:
+  ripley: true
+  moran: true
+  epidemic_velocity_target: 37.8

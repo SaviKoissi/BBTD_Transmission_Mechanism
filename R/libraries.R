@@ -22,3 +22,7 @@ library(stringr)
 library(stringdist)
 library(ggrepel)
 library(viridis)
+
+# Simulations
+library(spdep)
+library(vegan)
