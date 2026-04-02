@@ -4,11 +4,20 @@ paths:
   input_shpf: "input/BEN/ben_admbnda_adm2_1m_salb_20190816.shp"
   output_prevalence: "output/prevalence_per_farm.csv"
   output_prevalence_hist: "output/prevalence_per_farm_hist.csv"
-  output_prevalence_fulData: "output/fullData.csv"
+  output_prevalence_merged: "output/prevalence_merged.csv"
+
+model:
+  stan_file: "scripts/stan/misclass_hier_logit_nocov.stan"
+  seed: 123
+  chains: 4
+  iter_warmup: 1000
+  iter_sampling: 1000
 
 columns:
   id: "Unique_Field_ID"
   lon: "Longitude"
   lat: "Latitude"
   disease: "Disease_state"
+  n_diseased: "NumbDiseasedPlant_Farm"
+  n_total: "TotalPlant_Farm"
   year: "year"

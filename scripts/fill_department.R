@@ -2,32 +2,37 @@
 # CHECK FOR MISSING DEPARTMENT NAME
 # ==========================================================
 
-config <- yaml::read_yaml("config/config.yml")
-
+config <- yaml::read_yaml("config/config.yml") 
 benin_shp <- sf::st_read(config$paths$input_shpf)
 
-fill_missing_department <- function(data, shapefile) {
+fill_missing_department <- function(data, shapefile, dept_col) {
   
-  # Ensure sf format
+  if (!dept_col %in% names(shapefile)) {
+    stop(paste("Column", dept_col, "not found in shapefile"))
+  }
+  
   data_sf <- data %>%
-    filter(!is.na(Longitude), !is.na(Latitude)) %>%
-    st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326, remove = FALSE)
+    dplyr::filter(!is.na(Longitude), !is.na(Latitude)) %>%
+    sf::st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326, remove = FALSE)
   
-  # Ensure same CRS
-  shapefile <- st_transform(shapefile, st_crs(data_sf))
+  shapefile <- sf::st_make_valid(shapefile)
+  shapefile <- sf::st_transform(shapefile, sf::st_crs(data_sf))
   
-  # Spatial join
-  joined <- st_join(data_sf, shapefile, left = TRUE)
+  joined <- sf::st_join(data_sf, shapefile, left = TRUE)
   
-  # Replace missing Departement
-  data_filled <- joined %>%
-    mutate(
-      Departement = if_else(
-        is.na(Departement),
-        as.character(adm1_name),   # <-- adapt if needed
-        as.character(Departement)
-      )
-    )
+  # Safe replacement
+  joined$Departement <- dplyr::coalesce(
+    as.character(joined$Departement),
+    as.character(joined[[dept_col]])
+  )
   
-  return(data_filled)
+  # Nearest fallback
+  missing_idx <- which(is.na(joined$Departement))
+  
+  if (length(missing_idx) > 0) {
+    nearest_idx <- sf::st_nearest_feature(joined[missing_idx, ], shapefile)
+    joined$Departement[missing_idx] <- shapefile[[dept_col]][nearest_idx]
+  }
+  
+  return(joined)
 }
