@@ -12,7 +12,8 @@ build_phase1 <- function(data_full) {
   
   A <- create_adjacency_matrix(farm_ids)
   
-  X0 <- create_initial_state(data_full, year = 2012)
+  X0 <- create_initial_state(data_full, year = 2018)
+  
   
   data_2025 <- data_full %>%
     dplyr::filter(year == 2025)
