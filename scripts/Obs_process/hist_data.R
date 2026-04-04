@@ -3,7 +3,7 @@
 # ADD HISTORIC DATA
 # ==========================================================
 
-source("scripts/compute_prevalence.R")
+source("scripts/Obs_process/compute_prevalence.R")
 
 config <- yaml::read_yaml("config/config.yml")
 
