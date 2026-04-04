@@ -45,8 +45,7 @@ beta_from_quantiles <- function(q_lo, q_hi, p_lo = 0.025, p_hi = 0.975){
 
 # Priors
 Se_beta <- beta_from_quantiles(0.40, 0.90)
-Sp_beta <- beta_from_quantiles(0.80, 0.99)
-
+Sp_beta <- beta_from_quantiles(0.97, 0.999)
 # ==========================================================
 # BUILD STAN DATA
 # ==========================================================
@@ -129,12 +128,16 @@ extract_prevalence <- function(fit_obj, original_sf_data) {
       # Optional: Create a column for the bias (Difference)
       bias_correction = true_prev_median - (NumbDiseasedPlant_Farm / TotalPlant_Farm)
     )
+  final_data <- final_data %>%
+    mutate(
+      true_prev_pct = true_prev_median * 100,
+      obs_prev_pct = (NumbDiseasedPlant_Farm / TotalPlant_Farm) * 100
+    )
   
   return(final_data)
 }
 
-# # --- Execution ---
-# data_with_results <- extract_prevalence(fit_obj, data_fullData)
-# 
-# # Check the first few rows
-# head(data_with_results %>% select(Unique_Field_ID, true_prev_median, true_prev_lower))
+# data_fullData = your merged dataset
+fit_obj <- run_model(data_fullData)
+
+posterior_prev <- extract_prevalence(fit_obj, data_fullData)

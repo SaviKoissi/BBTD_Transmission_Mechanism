@@ -2,8 +2,6 @@
 # BUILD PHASE 1
 # ==========================================================
 
-
-
 build_phase1 <- function(data_full) {
   
   spatial <- create_spatial_embedding(data_full)
@@ -19,7 +17,9 @@ build_phase1 <- function(data_full) {
   data_2025 <- data_full %>%
     dplyr::filter(year == 2025)
   
-  S_obs <- compute_observed_metrics(data_2025, coords)
+  coord <- create_spatial_embedding(data_2025)$coords
+  
+  S_obs <- compute_observed_metrics(data_2025, coord)
   
   return(list(
     coords = coords,

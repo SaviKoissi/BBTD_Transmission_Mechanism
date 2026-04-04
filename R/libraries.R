@@ -11,6 +11,7 @@ library(yaml)
 # Spatial
 library(terra)
 library(ggspatial)
+library(spatstat)
 
 # Bayesian
 library(cmdstanr)

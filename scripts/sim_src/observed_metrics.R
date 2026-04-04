@@ -5,59 +5,37 @@
 
 # scripts/phase1/observed_metrics.R
 
-
-compute_observed_metrics <- function(data_2025, coords,
-                                     prev_col = "prevalence",
-                                     id_col = "Unique_Field_ID") {
+compute_observed_metrics <- function(data_2025, coords, 
+                                     prev_col = "true_prev_median") { # Use Stan result!
   
-  # ----------------------------
-  # 1. Aggregate to farm level
-  # ----------------------------
-  farm_level <- data_2025 %>%
-    dplyr::group_by(.data[[id_col]]) %>%
-    dplyr::summarise(
-      prevalence = mean(.data[[prev_col]], na.rm = TRUE),
-      .groups = "drop"
-    )
-  
-  # ----------------------------
-  # 2. Align with coords
-  # ----------------------------
+  # 1. Align data with coords
   farm_ids <- rownames(coords)
+  farm_level <- data_2025 %>%
+    dplyr::filter(Unique_Field_ID %in% farm_ids) %>%
+    dplyr::arrange(match(Unique_Field_ID, farm_ids))
   
-  farm_level <- farm_level %>%
-    dplyr::filter(.data[[id_col]] %in% farm_ids)
+  prev_vector <- farm_level[[prev_col]]
   
-  farm_level <- farm_level[match(farm_ids, farm_level[[id_col]]), ]
-  
-  prev_vector <- farm_level$prevalence
-  
-  # ----------------------------
-  # 3. Remove NA safely
-  # ----------------------------
-  valid_idx <- which(!is.na(prev_vector))
-  
-  prev_vector <- prev_vector[valid_idx]
-  coords_mat <- coords[valid_idx, , drop = FALSE]
-  
-  # ----------------------------
-  # 4. Spatial weights
-  # ----------------------------
-  nb <- spdep::knn2nb(spdep::knearneigh(coords_mat, k = 6))
+  # 2. Moran's I (Global Clustering)
+  nb <- spdep::knn2nb(spdep::knearneigh(coords, k = 6))
   listw <- spdep::nb2listw(nb, style = "W")
-  
-  # ----------------------------
-  # 5. Moran’s I
-  # ----------------------------
   moran <- spdep::moran.test(prev_vector, listw)
   
-  # ----------------------------
-  # 6. Output
-  # ----------------------------
+  # 3. Ripley's K-Function (Scale-dependent Clustering)
+  # Convert to a point pattern object for spatstat
+  # We treat 'high prevalence' farms as the points for the K-function
+  # or use the weighted version if your version of spatstat supports it.
+  window <- owin(range(coords[,1]), range(coords[,2]))
+  ppp_obj <- ppp(coords[,1], coords[,2], window = window, 
+                 marks = as.numeric(prev_vector > 0.05)) # Threshold for "Infected"
+  k_val <- Kest(ppp_obj[marks(ppp_obj) == 1])
+  
+  # 4. Final Output Object
   S_obs <- list(
     regional_prevalence = mean(prev_vector, na.rm = TRUE),
     moran_i = moran$estimate[["Moran I statistic"]],
-    epidemic_velocity = 37.8
+    ripley_k = k_val$iso, # The Ripley's K curve
+    epidemic_velocity = 37.8 # Your fixed target from literature
   )
   
   return(S_obs)

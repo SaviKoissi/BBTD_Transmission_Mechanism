@@ -36,3 +36,10 @@ fill_missing_department <- function(data, shapefile, dept_col) {
   
   return(joined)
 }
+
+data_fullData <- fill_missing_department(
+  data_fullData,
+  benin_shp,
+  "adm1_name"
+)
+
