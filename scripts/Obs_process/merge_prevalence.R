@@ -14,8 +14,8 @@ merge_prevalence <- function(current, historical) {
   # Keep common columns
   common_cols <- intersect(names(current), names(historical))
   
-  current <- current %>% select(all_of(common_cols))
-  historical <- historical %>% select(all_of(common_cols))
+  current <- current %>% dplyr::select(all_of(common_cols))
+  historical <- historical %>% dplyr::select(all_of(common_cols))
   
   # Merge
   merged <- bind_rows(current, historical) %>%

@@ -53,7 +53,7 @@ rename(
 ) %>%
   
   # ---- Drop noise early (performance gain) ----
-select(-any_of(c(
+dplyr::select(-any_of(c(
   "Calculation","Picture","start","end","Country","YEAR OF COLLECTION",
   "Field ID","Surveyor Name","Data Collector's Initials",
   "Enter a date and time","Country.1",
@@ -107,7 +107,7 @@ mutate(
   )
 ) %>%
   
-  select(-evidence_disease) %>%
+  dplyr::select(-evidence_disease) %>%
   
   # ---- Missing value harmonization ----
 mutate(
@@ -150,7 +150,7 @@ mutate(
     names_prefix = "CS_"
   ) %>%
   
-  select(-matches("CS_(NA|Non|N|No)$")) %>%
+  dplyr::select(-matches("CS_(NA|Non|N|No)$")) %>%
   
   # ---- Efficient factor conversion ----
 mutate(

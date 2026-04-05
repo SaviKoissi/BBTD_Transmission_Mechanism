@@ -10,7 +10,7 @@
 
 ```bash
 scripts/
-├── sim_src/
+├── sim_src/phase1/
 │   ├── spatial_embedding.R
 │   ├── distance_matrix.R
 │   ├── network_adjacency.R

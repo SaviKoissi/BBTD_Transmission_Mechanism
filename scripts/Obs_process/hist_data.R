@@ -22,7 +22,7 @@ data_hist <- data_hist %>%
     Commune = NAME_2,
     Disease_state = BBTD_inc
   ) %>% 
-  select(-c(NAME_3, country_name, adm0_name,
+  dplyr::select(-c(NAME_3, country_name, adm0_name,
             country_iso3, crop, date_created_unixtimestamp , 
             pest, source,
             date_created, date_accessed, date_created_unixtimestamp)) %>% 
