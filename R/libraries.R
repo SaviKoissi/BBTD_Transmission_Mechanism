@@ -32,3 +32,4 @@ library(future)
 # Use 'multicore' on Linux/HPC for better performance than 'multisession'
 plan(multicore, workers = 8) 
 library(lhs)
+library(spatstat.geom)

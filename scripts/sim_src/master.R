@@ -30,3 +30,14 @@ source("scripts/sim_src/Phase3/simulation_engine.R")
 source("scripts/sim_src/Phase3/abc_particle_run.R")
 source("scripts/sim_src/Phase3/run_phase3.R")
 source("scripts/sim_src/Phase3/phase3.R")
+
+source("scripts/sim_src/Phase4/misclassification.R")
+source("scripts/sim_src/Phase4/wavefront_velocity.R")
+source("scripts/sim_src/Phase4/clustering_stats.R")
+source("scripts/sim_src/Phase4/prevalence_stats.R")
+source("scripts/sim_src/Phase4/summary_stats.R")
+source("scripts/sim_src/Phase4/run_phase4.R")
+source("scripts/sim_src/Phase4/phase4.R")
+
+
+
