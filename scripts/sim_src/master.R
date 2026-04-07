@@ -39,5 +39,17 @@ source("scripts/sim_src/Phase4/summary_stats.R")
 source("scripts/sim_src/Phase4/run_phase4.R")
 source("scripts/sim_src/Phase4/phase4.R")
 
+source("scripts/sim_src/Phase5/distance.R")
+source("scripts/sim_src/Phase5/acceptance.R")
+source("scripts/sim_src/Phase5/weighting.R")
+source("scripts/sim_src/Phase5/resampling.R")
+source("scripts/sim_src/Phase5/posterior/extract_posterior.R")
+source("scripts/sim_src/Phase5/posterior/summary_tables.R")
+source("scripts/sim_src/Phase5/posterior/ternary_plot.R")
+source("scripts/sim_src/Phase5/posterior/posterior_plots.R")
+source("scripts/sim_src/Phase5/posterior/model_comparison.R")
+source("scripts/sim_src/Phase5/diagnostics.R")
+source("scripts/sim_src/Phase5/run_phase5.R")
+source("scripts/sim_src/Phase5/phase5.R")
 
 
