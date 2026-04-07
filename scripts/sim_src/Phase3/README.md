@@ -11,8 +11,8 @@
 
 ```bash
 scripts/sim_src/phase3/
-├── kernels.R
 ├── normalization.R
+├── kernels.R
 ├── infection_pressure.R
 ├── state_update.R
 ├── simulation_engine.R
