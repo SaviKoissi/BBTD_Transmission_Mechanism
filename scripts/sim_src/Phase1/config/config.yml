@@ -1,5 +1,5 @@
 phase1:
-  year_initial: 2012
+  year_initial: 2018
   year_observed: 2025
   distance_method: euclidean
   adjacency_mode: topological
@@ -13,3 +13,8 @@ metrics:
   ripley: true
   moran: true
   epidemic_velocity_target: 37.8
+  
+phase2:
+  n_particles: 2000
+  alpha_dirichlet: [1, 1, 1]
+  epsilon: 0.05 # For ABC tolerance
