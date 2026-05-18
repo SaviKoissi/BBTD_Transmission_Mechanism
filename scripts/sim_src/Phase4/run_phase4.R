@@ -37,20 +37,37 @@
 # ==========================================================
 # REVISED RUN_PHASE4 (The Post-Processor)
 # ==========================================================
+# run_phase4 <- function(phase3_results, sim_env) {
+#   
+#   # 1. Define the timeline based on your Akpro-Missérété start (2018-2025)
+#   # This must match the length of your history_list
+#   times <- seq(2018, 2025) 
+#   
+#   # 2. Process each particle's results
+#   results <- lapply(phase3_results, function(p_res) {
+#     
+#     # A. Apply misclassification to the final simulated state
+#     p_res$X_obs <- apply_misclassification(p_res$X_true)
+#     
+#     # B. Compute the summary statistics (Velocity, Moran's I, Attribution)
+#     # This calls the enhanced compute_summary_stats from the previous turn
+#     stats <- compute_summary_stats(p_res, sim_env, times)
+#     
+#     return(stats)
+#   })
+#   
+#   return(results)
+# }
+
 run_phase4 <- function(phase3_results, sim_env) {
-  
-  # 1. Define the timeline based on your Akpro-Missérété start (2018-2025)
-  # This must match the length of your history_list
   times <- seq(2018, 2025) 
   
-  # 2. Process each particle's results
   results <- lapply(phase3_results, function(p_res) {
-    
-    # A. Apply misclassification to the final simulated state
     p_res$X_obs <- apply_misclassification(p_res$X_true)
     
-    # B. Compute the summary statistics (Velocity, Moran's I, Attribution)
-    # This calls the enhanced compute_summary_stats from the previous turn
+    # CRITICAL ALIGNMENT: 
+    # If compute_summary_stats relies on a custom wrapper, make sure it feeds
+    # p_res$history directly into your compute_wavefront_velocity function!
     stats <- compute_summary_stats(p_res, sim_env, times)
     
     return(stats)

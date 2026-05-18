@@ -68,7 +68,8 @@
 #   ))
 # }
 
-run_phase5 <- function(phase4_results, phase2_obj, S_obs, prop = 0.05, model_results = NULL) {
+run_phase5 <- function(phase4_results, phase2_obj, 
+                       S_obs, prop = 0.05, model_results = NULL) {
   
   message("--- Starting Phase 5: Posterior Inference ---")
   
