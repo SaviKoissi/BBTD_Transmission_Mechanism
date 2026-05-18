@@ -14,7 +14,7 @@ run_phase3 <- function(phase2_obj,
     
     # ENHANCEMENT: future.seed = TRUE ensures parallel-safe random numbers
     # for rbinom() calls inside the simulation.
-    results <- future_lapply(particles, function(p) {
+    results <- future.apply::future_lapply(particles, function(p) {
       run_particle(sim_env, p, kernel_local_type, kernel_long_type)
     }, future.seed = TRUE) 
     
