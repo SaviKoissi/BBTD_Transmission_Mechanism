@@ -1,20 +1,62 @@
+# ==========================================================================
+# EPIDEMIOLOGICAL SIMULATION & SURVEILLANCE CONFIGURATION
+# ==========================================================================
+
+# PHASE 1: Landscape Geometry & Spatial Network Infrastructure
 phase1:
   year_initial: 2018
   year_observed: 2025
-  distance_method: euclidean
-  adjacency_mode: topological
+  distance_method: "euclidean"
+  adjacency_mode: "topological"
   knn_k: 4
 
 spatial:
   projection: NA
   use_latlon: true
 
-metrics:
-  ripley: true
-  moran: true
-  epidemic_velocity_target: 37.8
-  
+# PHASE 2: Prior Specification & ABC Sampling Rules
 phase2:
   n_particles: 2000
-  alpha_dirichlet: [1, 1, 1]
-  epsilon: 0.05 # For ABC tolerance
+  alpha_dirichlet: [1.0, 1.0, 1.0]  # Flat prior for local, long, and network mixtures
+  epsilon_initial: 0.20             # Starting tolerance bound for adaptive sequential setups
+
+# PHASE 3: Forward Simulation Engine Settings
+phase3:
+  realizations_per_particle: 1     # Stochastic runs to evaluate per configuration profile
+  time_step_dt: 0.1                 # Numerical integration step size (delta t)
+
+models:
+    kernel_local: "exponential"     # Options: "exponential", "gaussian"
+    kernel_long: "powerlaw"         # Options: "powerlaw", "cauchy", "Levy"
+    use_network: true               # Triggers addition of farmer network matrix
+
+# PHASE 4: Observation Error Mapping & Summary Statistic Calculation
+phase4:
+  observation_process:
+    misclassification_rate: 0.12    # Combined diagnostic background error margin
+    sensitivity: 0.88               # True positive detection probability in fields
+    specificity: 0.95               # True negative validation margin
+  metrics:
+    ripley_k: true
+    moran_i: true
+    epidemic_velocity_target: 37.8  # Target wave velocity benchmark km/year
+    pathways:
+      - "prop_local"                # Aphid/vector spread proportion
+      - "prop_long"                 # Wind-borne long-range movement
+      - "prop_net"                  # Anthropogenic farmer network exchange
+
+# PHASE 5: Approximate Bayesian Computation (ABC) Rejection Filter
+phase5:
+  epsilon: 0.05                     # Strict final distance tolerance boundary limit
+  distance_metric: "mahalanobis"    # Options: "euclidean", "mahalanobis", "standardized_euclidean"
+  min_accepted_particles: 100       # Floor limit before stopping iteration loop
+
+# PHASE 6: Post-Processing, Inference & Visual Diagnostics
+phase6:
+  output_directory: "./outputs/sim_runs"
+  save_raw_posteriors: true
+  plots:
+    generate_ternary: true          # Triggers headless plot_ternary execution
+    generate_weights: true          # Triggers headless plot_posterior_weights execution
+    export_format: "png"            # Layout type for figures
+    dpi: 300

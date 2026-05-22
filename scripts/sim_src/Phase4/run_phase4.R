@@ -1,76 +1,56 @@
-# ==========================================================
-# RUN PHASE 4
-# ==========================================================
-
-# run_phase4 <- function(phase2_obj,
-#                        kernel_local_type = "gaussian",
-#                        kernel_long_type = "powerlaw",
-#                        parallel = FALSE) {
-#   
-#   sim_env <- phase2_obj$simulation_env
-#   particles <- phase2_obj$particles
-#   
-#   times <- seq(2012, 2025, by = 1)
-#   
-#   if (parallel) {
-#     library(future.apply)
-#     
-#     results <- future_lapply(particles, function(p) {
-#       run_particle(sim_env, p,
-#                    kernel_local_type,
-#                    kernel_long_type,
-#                    times)
-#     })
-#     
-#   } else {
-#     
-#     results <- lapply(particles, function(p) {
-#       run_particle(sim_env, p,
-#                    kernel_local_type,
-#                    kernel_long_type,
-#                    times)
-#     })
-#   }
-#   
-#   return(results)
-# }
-# ==========================================================
-# REVISED RUN_PHASE4 (The Post-Processor)
-# ==========================================================
-# run_phase4 <- function(phase3_results, sim_env) {
-#   
-#   # 1. Define the timeline based on your Akpro-Missérété start (2018-2025)
-#   # This must match the length of your history_list
-#   times <- seq(2018, 2025) 
-#   
-#   # 2. Process each particle's results
-#   results <- lapply(phase3_results, function(p_res) {
-#     
-#     # A. Apply misclassification to the final simulated state
-#     p_res$X_obs <- apply_misclassification(p_res$X_true)
-#     
-#     # B. Compute the summary statistics (Velocity, Moran's I, Attribution)
-#     # This calls the enhanced compute_summary_stats from the previous turn
-#     stats <- compute_summary_stats(p_res, sim_env, times)
-#     
-#     return(stats)
-#   })
-#   
-#   return(results)
-# }
-
-run_phase4 <- function(phase3_results, sim_env) {
+# ==========================================================================
+# RUN PHASE 4 (Corrected & Hardened)
+# ==========================================================================
+run_phase4 <- function(phase3_results, sim_env, ...) {
+  
+  # Capture any structural arguments passed down by the loop 
+  # (e.g., kernel_local, kernel_long, network_matrix)
+  dots <- list(...)
+  
+  if (length(dots) > 0) {
+    message("[DEBUG] Phase 4 processing summary metrics for structural configuration: ", 
+            paste(names(dots), "=", as.character(dots), collapse = " | "))
+  }
+  
   times <- seq(2018, 2025) 
   
   results <- lapply(phase3_results, function(p_res) {
+    # 1. Apply observational noise / misclassification mapping
     p_res$X_obs <- apply_misclassification(p_res$X_true)
     
-    # CRITICAL ALIGNMENT: 
-    # If compute_summary_stats relies on a custom wrapper, make sure it feeds
-    # p_res$history directly into your compute_wavefront_velocity function!
-    stats <- compute_summary_stats(p_res, sim_env, times)
+    # 2. Compute spatial summary metrics (Prevalence, Moran's I, Ripley's K, Velocity)
+    X_final  <- p_res$X_obs
+    coords   <- sim_env$coords
     
-    return(stats)
+    prev     <- mean(as.numeric(unlist(X_final)), na.rm = TRUE)
+    moran    <- compute_moran_I(X_final, coords)
+    ripley   <- compute_ripley_K(X_final, coords)
+    velocity <- compute_wavefront_velocity(p_res$history, coords, times)
+    
+    # 3. DIRECT EXTRACT: Harvest the metrics Phase 3 already computed
+    attr_vals <- c(
+      prop_local = as.numeric(p_res$metrics$prop_local),
+      prop_long  = as.numeric(p_res$metrics$prop_long),
+      prop_net   = as.numeric(p_res$metrics$prop_net)
+    )
+    
+    # 4. Construct the balanced return structure for Phase 5
+    #    We append the structural metadata so it is preserved downstream.
+    return(list(
+      abc_vector = c(
+        prevalence = as.numeric(prev),
+        moran_I    = as.numeric(moran),
+        ripley_K   = as.numeric(ripley),
+        velocity   = as.numeric(velocity)
+      ),
+      attribution = attr_vals,
+      # Safely pack the model tags into the list if they exist
+      metadata = list(
+        kernel_local   = if (!is.null(dots$kernel_local)) dots$kernel_local else NA,
+        kernel_long    = if (!is.null(dots$kernel_long)) dots$kernel_long else NA,
+        network_matrix = if (!is.null(dots$network_matrix)) "[Matrix Provided]" else "[Null]"
+      )
+    ))
   })
   
   return(results)

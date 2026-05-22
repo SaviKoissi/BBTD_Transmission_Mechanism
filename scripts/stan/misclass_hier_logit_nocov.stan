@@ -1,74 +1,9 @@
-// data {
-//   int<lower=1> N;                         // Number of observations
-//   int<lower=1> K;                         // Number of fields (groups)
-
-//   array[N] int<lower=1, upper=K> field;   // Field index mapping
-//   array[N] int<lower=0> y;                // Number of observed infected plants
-//   array[N] int<lower=1> n;                // Total plants sampled per observation
-
-  // Priors for sensitivity and specificity (Hyperparameters)
-//   real<lower=0> Se_a;
-//   real<lower=0> Se_b;
-//   real<lower=0> Sp_a;
-//   real<lower=0> Sp_b;
-// }
-
-// parameters {
-//   real mu;                                // Global intercept (logit scale)
-//   real<lower=0> sigma_field;              // SD of field-level random effects
-//   vector[K] z_field;                      // Non-centered field effects
-
-//   real<lower=0, upper=1> Se;              // Sensitivity
-//   real<lower=0, upper=1> Sp;              // Specificity
-// }
-
-// transformed parameters {
-//   vector[K] alpha_field = mu + (sigma_field * z_field);
-//   vector<lower=0, upper=1>[N] p_obs;
-
-  // Local scope to keep p_true from being saved in the output (saves memory/disk)
-//   {
-//     vector[N] p_true;
-//     for (i in 1:N) {
-//       p_true[i] = inv_logit(alpha_field[field[i]]);
-//     }
-    // Core misclassification logic (Vectorized)
-//     p_obs = Se * p_true + (1 - Sp) * (1 - p_true);
-//   }
-// }
-
-// model {
-  // Priors
-  //mu ~ normal(-2, 1); 
-//   mu ~ normal(0.4, 1);
-//   sigma_field ~ normal(0, 1);
-//   z_field ~ normal(0, 1); 
-
-//   Se ~ beta(Se_a, Se_b);
-//   Sp ~ beta(Sp_a, Sp_b);
-
-  // Likelihood
-//   y ~ binomial(n, p_obs);
-// }
-
-// generated quantities {
-//   vector[N] log_lik;
-//   vector[K] field_prev;                   // "True" prevalence per field
-
-//   for (i in 1:N) {
-//     log_lik[i] = binomial_lpmf(y[i] | n[i], p_obs[i]);
-//   }
-
-//   for (k in 1:K) {
-//     field_prev[k] = inv_logit(alpha_field[k]);
-//   }
-// }
-
 data {
-  int<lower=1> N;                         // Number of observations
-  int<lower=1> K;                         // Number of fields/farms
-  array[N] int<lower=1, upper=K> field;   // Field index mapping
-  array[N] int<lower=0, upper=1> y;       // Observed Binary State (1=Infected, 0=Susceptible)
+  int<lower=1> N;                         // Number of farms
+  int<lower=1> K;                         // Total unique fields
+  array[N] int<lower=1, upper=K> field;   // Field mapping index
+  array[N] int<lower=0> y;                // Number of observed diseased plants per farm
+  array[N] int<lower=1> m;                // Total number of plants inspected per farm
 
   // Hyperparameters for Se and Sp priors
   real<lower=0> Se_a;
@@ -78,45 +13,54 @@ data {
 }
 
 parameters {
-  real mu;                                // Global intercept (Regional Log-odds)
-  real<lower=0> sigma_field;              // Variance between fields
-  vector[K] z_field;                      // Standardized field effects
+  real mu;                                // Log-odds of plant infection inside INFECTED fields
+  real<lower=0> sigma_field;              // Variance between truly infected fields
+  vector[K] z_field;                      // Non-centered spatial field effects
 
-  real<lower=0, upper=1> Se;              // Sensitivity (True + / Observed +)
-  real<lower=0, upper=1> Sp;              // Specificity (True - / Observed -)
+  real logit_theta;                       // Global farm occupancy log-odds
+  real<lower=0.5, upper=1.0> Se;          // Sensitivity
+  real<lower=0.5, upper=1.0> Sp;          // Specificity
 }
 
 transformed parameters {
   vector[K] alpha_field = mu + (sigma_field * z_field);
-  vector<lower=0, upper=1>[N] p_obs;
-
-  {
-    vector[N] p_true;
-    for (i in 1:N) {
-      p_true[i] = inv_logit(alpha_field[field[i]]);
-    }
-    // Misclassification Logic: Observed Prev = Se*True + (1-Sp)*(1-True)
-    p_obs = Se * p_true + (1 - Sp) * (1 - p_true);
-  }
+  real<lower=0.0, upper=1.0> theta;       
+  theta = inv_logit(logit_theta);
 }
 
 model {
-  // PRIORS
-  // Centered at 0.4 (~60% prevalence) with a wider SD to allow data to lead
-  mu ~ normal(0.4, 1.5);  
-  sigma_field ~ normal(0, 1);
-  z_field ~ normal(0, 1); 
+  // PRIORS - Highly stable, standard weakly-informative layout
+  mu ~ normal(0.0, 1.0);                  
+  sigma_field ~ exponential(2.0);         
+  z_field ~ normal(0, 1);                 
+  
+  // Directly targets your >62% operational expectation baseline
+  logit_theta ~ normal(0.55, 0.25);       
 
   Se ~ beta(Se_a, Se_b);
   Sp ~ beta(Sp_a, Sp_b);
 
-  // LIKELIHOOD: Bernoulli for Binary Farm Units
-  y ~ bernoulli(p_obs);
+  // LATENT STRATIFIED MIXTURE ENGINE
+  {
+    vector[N] p_inf = inv_logit(alpha_field[field]);
+    
+    for (i in 1:N) {
+      // Probability profiles for both potential states
+      real log_prob_if_infected = log(theta) + binomial_lpmf(y[i] | m[i], Se * p_inf[i] + (1.0 - Sp) * (1.0 - p_inf[i]));
+      real log_prob_if_healthy  = log1m(theta) + binomial_lpmf(y[i] | m[i], 1.0 - Sp);
+      
+      if (y[i] == 0) {
+        // A zero-count field could be a clean field OR an infected field with missed cases
+        target += log_sum_exp(log_prob_if_healthy, log_prob_if_infected);
+      } else {
+        // If a single sick plant exists, it cannot be from the clean pool (except by false positives)
+        target += log_sum_exp(log_prob_if_healthy, log_prob_if_infected);
+      }
+    }
+  }
 }
 
 generated quantities {
-  vector[K] field_prev;                   // "True" bias-adjusted incidence per farm
-  for (k in 1:K) {
-    field_prev[k] = inv_logit(alpha_field[k]);
-  }
+  vector[K] field_prev;                   
+  field_prev = inv_logit(alpha_field);
 }

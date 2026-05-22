@@ -52,4 +52,5 @@ source("scripts/sim_src/Phase5/diagnostics.R")
 source("scripts/sim_src/Phase5/run_phase5.R")
 source("scripts/sim_src/Phase5/phase5.R")
 
-
+source("scripts/sim_src/Phase6/run_phase6.R")
+source("scripts/sim_src/Phase6/phase6.R")

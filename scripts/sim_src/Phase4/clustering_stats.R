@@ -2,45 +2,6 @@
 # CLUSTERING METRICS
 # ==========================================================
 
-# compute_moran_I <- function(X, coords, k = 4) {
-#   
-#   # remove NA if any
-#   valid <- !is.na(X)
-#   X <- X[valid]
-#   coords <- coords[valid, ]
-#   
-#   nb <- spdep::knn2nb(spdep::knearneigh(coords, k = k))
-#   listw <- spdep::nb2listw(nb, style = "W")
-#   
-#   test <- spdep::moran.test(X, listw)
-#   
-#   return(as.numeric(test$estimate["Moran I statistic"]))
-# }
-# 
-# compute_ripley_K <- function(X, coords) {
-#   
-#   infected_idx <- which(X == 1)
-#   
-#   if (length(infected_idx) < 5) return(NA)
-#   
-#   pts <- coords[infected_idx, ]
-#   
-#   win <- spatstat.geom::owin(
-#     xrange = range(coords[,1]),
-#     yrange = range(coords[,2])
-#   )
-#   
-#   pp <- spatstat.geom::ppp(
-#     x = pts[,1],
-#     y = pts[,2],
-#     window = win
-#   )
-#   
-#   K <- spatstat.explore::Kest(pp)
-#   
-#   # summarize K (e.g., mean deviation from CSR)
-#   return(mean(K$iso, na.rm = TRUE))
-# }
 compute_moran_I <- function(X, coords, k = 8) {
   # Standardize types
   X_vec <- as.numeric(unlist(X))
