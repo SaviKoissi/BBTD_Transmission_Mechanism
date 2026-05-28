@@ -29,8 +29,23 @@ library(spdep)
 library(vegan)
 library(MCMCpack)
 library(future)
+
 # Use 'multicore' on Linux/HPC for better performance than 'multisession'
 plan(multicore, workers = 8) 
 library(lhs)
 library(spatstat.geom)
 library(ggtern)
+library(patchwork)
+library(extras)
+
+# Node indeepth analysis 
+library(igraph)
+library(knitr)
+
+# For indeepth analysis
+library(factoextra)
+library(FactoMineR)
+library(ggtern)
+library(viridis)
+library(car)
+library(heplots) # For computing partial Eta-Squared effect sizes

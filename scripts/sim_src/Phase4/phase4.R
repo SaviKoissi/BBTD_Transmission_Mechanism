@@ -2,33 +2,53 @@
 #  PHASE 4 EXECUTION BLOCK
 # ==========================================================================
 
-# 1. Run the Simulations (Phase 3)
-# This generates the raw epidemic growth and pathway logs
-phase3_output <- run_phase3(
-  phase2, 
-  kernel_local_type = "gaussian", 
-  kernel_long_type = "powerlaw", 
-  parallel = TRUE
-)
+# Match your exact internal nomenclature
+local_types <- c("gaussian", "exponential")
+long_types  <- c("powerlaw", "cauchy", "levy")
+model_grid  <- expand.grid(kernel_local_type = local_types, 
+                           kernel_long_type = long_types, 
+                           stringsAsFactors = FALSE)
 
+total_particles <- 20000
+particles_per_model <- total_particles / nrow(model_grid) # 3,333 particles per configuration
 
-# 2. Process the Results (Phase 4)
-# Aligned directly with your root-level YAML structure and environment variables
-# phase4_results <- run_phase4(
-#   phase3_results = phase3_output, 
-#   sim_env        = phase2$simulation_env,  # Fixed from bare sim_env
-#   kernel_local   = config$models$kernel_local,   # Fixed path (removed $phase3)
-#   kernel_long    = config$models$kernel_long,    # Fixed path (removed $phase3)
-#   network_matrix = if (isTRUE(config$models$use_network)) network_full else NULL
-# )
-phase4_results <- run_phase4(
-  phase3_results = phase3_output, 
-  sim_env        = phase2$simulation_env,
-  kernel_local   = "gaussian",  # Hardcoded to match your Phase 3 explicit arguments
-  kernel_long    = "powerlaw",  # Hardcoded to match your Phase 3 explicit arguments
-  network_matrix = if (exists("network_full")) network_full else NULL
-)
+cat("Initializing Multi-Model Tournament across", nrow(model_grid), "structural configurations...\n")
 
-# 3. Serialize outputs for Phase 5 particle filtration
+phase4_results <- list()
+particle_counter <- 1
+
+for(m in 1:nrow(model_grid)) {
+  current_local <- as.character(model_grid$kernel_local_type[m])
+  current_long  <- as.character(model_grid$kernel_long_type[m])
+  
+  cat(sprintf(" -> Executing batch: kernel_local_type [%s] + kernel_long_type [%s]\n", 
+              current_local, current_long))
+  
+  # 1. Generate active running particles for this specific configuration
+  phase3_output <- run_phase3(
+    phase2            = phase2, 
+    kernel_local_type = current_local, 
+    kernel_long_type  = current_long, 
+    network_matrix    = if (exists("network_full")) network_full else NULL,
+    parallel          = TRUE
+  )
+  
+  # 2. Process results using identical naming options for the stats engine
+  phase4_batch <- run_phase4(
+    phase3_results = phase3_output, 
+    sim_env        = phase2$simulation_env,
+    kernel_local   = current_local,  
+    kernel_long    = current_long,  
+    network_matrix = if (exists("network_full")) network_full else NULL
+  )
+  
+  # 3. Collate into your master collection structure
+  for(i in seq_along(phase4_batch)) {
+    phase4_results[[particle_counter]] <- phase4_batch[[i]]
+    particle_counter <- particle_counter + 1
+  }
+}
+
+# 4. Serialize your clean, functional multi-model outputs using your exact filename
 saveRDS(phase4_results, "output/Phase4.rds")
-message("[SUCCESS] Phase 4 processing complete. Metadata captured cleanly.")
+message("[SUCCESS] Phase 4 has successfully processed active, running particles across all structural variations.")

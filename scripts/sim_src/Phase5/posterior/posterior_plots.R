@@ -21,7 +21,8 @@ plot_posterior_weights <- function(posterior_df) {
   
   # Explicitly pivot long without throwing filtering exceptions over 0 values
   long_df <- data.frame(
-    pathway = rep(c("Local (Aphids)", "Long-range (Wind)", "Network (Farmers)"), each = nrow(extracted_df)),
+    pathway = rep(c("Local (Aphids)", "Long-range (Wind)", 
+                    "Network (Farmers)"), each = nrow(extracted_df)),
     weight  = c(extracted_df$Local, extracted_df$Long, extracted_df$Net)
   )
   

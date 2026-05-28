@@ -3,5 +3,5 @@
 # ==========================================================
 
 # Phase 2
-phase2 <- run_phase2(phase1, n_particles = 2000)
+phase2 <- run_phase2(phase1, n_particles = 20000)
 saveRDS(phase2, "output/Phase2_Particles.rds")

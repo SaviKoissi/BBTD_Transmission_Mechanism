@@ -53,8 +53,9 @@ model {
         // A zero-count field could be a clean field OR an infected field with missed cases
         target += log_sum_exp(log_prob_if_healthy, log_prob_if_infected);
       } else {
-        // If a single sick plant exists, it cannot be from the clean pool (except by false positives)
-        target += log_sum_exp(log_prob_if_healthy, log_prob_if_infected);
+        // HARDENED LINE: If sick plants exist, it CANNOT be structurally healthy.
+        // It belongs strictly to the infected distribution pool.
+        target += log_prob_if_infected;
       }
     }
   }
@@ -64,3 +65,17 @@ generated quantities {
   vector[K] field_prev;                   
   field_prev = inv_logit(alpha_field);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

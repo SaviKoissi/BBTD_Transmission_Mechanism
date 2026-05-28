@@ -44,25 +44,3 @@ compute_distance <- function(S_sim, S_obs) {
   
   return(sqrt(sum(valid_components)))
 }
-
-
-
-# compute_distance <- function(S_sim, S_obs) {
-#   # 1. Summarize Obs Ripley's K if it's a long vector
-#   obs_val <- c(
-#     prevalence = as.numeric(S_obs$regional_prevalence),
-#     moran_i    = as.numeric(S_obs$moran_i),
-#     ripley_k   = mean(as.numeric(S_obs$ripley_k), na.rm = TRUE), # Summarize to 1 value
-#     velocity   = as.numeric(S_obs$epidemic_velocity)
-#   )
-#   
-#   # 2. Ensure Sim is a simple numeric vector in the same order
-#   # Order: prevalence, moran, ripley, velocity
-#   sim_val <- as.numeric(S_sim)
-#   
-#   # 3. Scaled Euclidean Distance
-#   valid <- is.finite(sim_val) & is.finite(obs_val)
-#   diff_scaled <- ((sim_val[valid] - obs_val[valid]) / obs_val[valid])^2
-#   
-#   return(sqrt(sum(diff_scaled)))
-# }
