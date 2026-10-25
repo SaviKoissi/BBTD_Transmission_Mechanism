@@ -22,7 +22,7 @@ This repository contains the data processing and observational inference layer o
 
 It represents the data-driven foundation upon which the simulation and ABC-SMC inference pipeline is built.
 
-⚠️ The simulation and model calibration components (IBM, SMC-ABC) are implemented in a separate computational workflow and are not fully contained in this repository.
+The simulation and model calibration components (IBM, SMC-ABC) are implemented in a separate computational workflow and are not fully contained in this repository.
 
 ## 3. Project Philosophy
 
