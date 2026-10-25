@@ -1,23 +1,57 @@
 # ==============================================================================
 # scripts/sim_src/Phase6/run_phase6.R
+# Orchestrates PNAS Analytical Metrics and Network Structure Selection
 # ==============================================================================
 
-run_phase6 <- function(posterior_df, network_matrix, distance_matrix, phase2_obj, S_obs) {
-  message("--- Starting Phase 6: PNAS Analytical Metrics ---")
+# ------------------------------------------------------------------------------
+# HARDENED ARRAY-SAFE NULL-COALESCING OPERATOR
+# Prevents length coercion errors when evaluating 2D matrices/arrays
+# ------------------------------------------------------------------------------
+`%||%` <- function(a, b) {
+  if (is.null(a) || length(a) == 0) return(b)
+  if (length(a) == 1 && is.na(a)) return(b)
+  return(a)
+}
+
+if (!exists("evaluate_network_topologies", mode = "function")) {
+  source("scripts/sim_src/Phase6/network_selection.R")
+}
+
+run_phase6 <- function(posterior_df, 
+                       network_matrix = NULL, 
+                       distance_matrix = NULL, 
+                       phase2_obj = NULL, 
+                       S_obs = NULL) {
+  
+  message("--- Starting Phase 6: PNAS Analytical Metrics & Network Selection ---")
   
   results <- list()
   
-  # Ensure posterior_df is a data frame and clean column names
+  # Clean and normalize posterior parameter dataframe
   posterior_df <- as.data.frame(posterior_df)
   names(posterior_df) <- tolower(names(posterior_df))
   
-  # Force convert all parameter columns to clean numeric arrays to fix the warning
   for (col in names(posterior_df)) {
     suppressWarnings(num_cast <- as.numeric(as.character(posterior_df[[col]])))
     if (!all(is.na(num_cast))) {
       posterior_df[[col]] <- num_cast
     }
   }
+  
+  # ----------------------------------------------------------------------------
+  # HARDENED MATRIX RESOLUTION
+  # ----------------------------------------------------------------------------
+  network_matrix <- network_matrix %||% 
+    phase2_obj$network_matrix %||% 
+    phase2_obj$adjacency_matrix %||% 
+    phase2_obj$A %||% 
+    NULL
+  
+  distance_matrix <- distance_matrix %||% 
+    phase2_obj$distance_matrix %||% 
+    phase2_obj$D %||% 
+    phase2_obj$dist %||% 
+    NULL
   
   # ----------------------------------------------------------------------------
   # EXTRACT EMPIRICAL VALUES FROM ACTIVE PARAMETER SPACE
@@ -33,35 +67,31 @@ run_phase6 <- function(posterior_df, network_matrix, distance_matrix, phase2_obj
   }
   
   if (is.null(v_obs) || length(v_obs) == 0 || any(is.na(v_obs)) || any(v_obs == 0)) {
-    message("[WARNING] Unable to resolve empirical velocity or value is invalid. Pulling mean from posterior particle metrics...")
+    message("[WARNING] Unable to resolve empirical velocity. Pulling mean from posterior particles...")
     v_pool <- if ("velocity" %in% names(posterior_df)) posterior_df$velocity else if ("v" %in% names(posterior_df)) posterior_df$v else 1.0
     v_obs <- mean(as.numeric(v_pool), na.rm = TRUE)
     if (is.na(v_obs) || v_obs == 0) v_obs <- 1.0
   }
   
-  # Safe extraction of R0_global to avoid vector evaluation traps
-  # Safe extraction of R0_global to avoid vector evaluation traps
+  # Resolve R0_global
   R0_global <- NULL
   if (!is.null(phase2_obj)) {
-    # Extract and force conversion to a clean numeric vector
     raw_r0 <- phase2_obj$R0_estimated %||% phase2_obj$R0
     if (!is.null(raw_r0)) R0_global <- as.numeric(raw_r0)
   }
   
-  # If it is still missing or unassigned, fall back to the posterior distribution dataframe
   if (is.null(R0_global) || length(R0_global) == 0 || any(is.na(R0_global))) {
     R0_global <- if ("r0" %in% names(posterior_df)) posterior_df$r0 else 1.5
   }
   
-  # CRITICAL ARRAY SHIELD: If R0_global is a vector/matrix array, collapse it safely to its mean scalar
   if (length(R0_global) > 1) {
     R0_global <- mean(as.numeric(R0_global), na.rm = TRUE)
   }
   
-  # Final fallback insurance check to protect against any NA evaluation traps
   if (is.null(R0_global) || is.na(R0_global) || R0_global == 0) {
     R0_global <- 1.5
   }
+  
   # ----------------------------------------------------------------------------
   # Metric A: Pathway-Specific Effective Reproductive Numbers (R0,k)
   # ----------------------------------------------------------------------------
@@ -130,7 +160,10 @@ run_phase6 <- function(posterior_df, network_matrix, distance_matrix, phase2_obj
   message("[INFO] Calculating Network-Landscape Congruence Index (Gamma)...")
   
   if (is.null(distance_matrix) || is.null(network_matrix)) {
-    results$congruence <- list(gamma_index = NA, interpretation = "Indeterminate Congruence: Spatial distance or network matrices are completely unallocated.")
+    results$congruence <- list(
+      gamma_index = NA, 
+      interpretation = "Indeterminate Congruence: Spatial distance or network matrices are completely unallocated."
+    )
   } else {
     kernel_type <- "exponential"
     if ("kernel_local" %in% names(posterior_df)) kernel_type <- as.character(posterior_df$kernel_local[1])
@@ -164,12 +197,16 @@ run_phase6 <- function(posterior_df, network_matrix, distance_matrix, phase2_obj
     )
   }
   
+  # ----------------------------------------------------------------------------
+  # Metric D: Network Topology Selection & Hypothesis Testing
+  # ----------------------------------------------------------------------------
+  message("[INFO] Running Network Structure Selection across candidate topologies...")
+  results$network_selection <- evaluate_network_topologies(
+    phase2_obj    = phase2_obj,
+    posterior_df  = posterior_df,
+    S_obs         = S_obs
+  )
+  
   message("--- Phase 6 Completed Successfully ---")
   return(results)
-}
-
-# HARDENED INLINE FALLBACK OPERATOR: Safe for both scalar tokens and full matrix arrays
-`%||%` <- function(a, b) {
-  if (is.null(a) || length(a) == 0 || (length(a) == 1 && is.na(a))) return(b)
-  return(a)
 }
