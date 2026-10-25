@@ -1,4 +1,4 @@
-# Phase 6: PNAS Analytical Metrics & Network Topology Selection
+# Phase 6: Analytical Metrics & Network Topology Selection
 
 ## Overview
 
