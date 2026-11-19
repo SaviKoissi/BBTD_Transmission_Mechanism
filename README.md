@@ -1,9 +1,12 @@
 # Tracing the Pathways of Banana Bunchy Top Disease in Benin
-<u> </u>
-[![R](https://img.shields.io/badge/R-4.3%2B-276DC3?style=for-the-badge&logo=r&logoColor=white)](https://www.r-project.org/)
-[![CMIP6](https://img.shields.io/badge/Mod%C3%A8les-CMIP6_Multi--Sc%C3%A9narios-2E8B57?style=for-the-badge)](https://pcmdi.llnl.gov/CMIP6/)
-[![SIG](https://img.shields.io/badge/SIG-sf_%7C_terra_%7C_ggplot2-D97706?style=for-the-badge)](#)
-[![Zone d'étude](https://img.shields.io/badge/Couverture-8_ZAE_du_B%C3%A9nin-0F766E?style=for-the-badge)](#)
+
+[![Language: R](https://img.shields.io/badge/Language-R_%E2%89%A5_4.3-276DC3?style=flat-square&logo=r&logoColor=white)](https://www.r-project.org/)
+[![Inference: Stan](https://img.shields.io/badge/Bayesian_Inference-Stan-B2001D?style=flat-square&logo=stan&logoColor=white)](https://mc-stan.org/)
+[![Method: SMC-ABC](https://img.shields.io/badge/Simulation-SMC--ABC_%7C_IBM-6A1B9A?style=flat-square)]()
+[![Domain: Plant Epidemiology](https://img.shields.io/badge/Domain-Plant_Biosecurity_%7C_BBTD-2E7D32?style=flat-square)]()
+[![Region: Benin](https://img.shields.io/badge/Study_Area-Benin-F9A825?style=flat-square)]()
+[![Pipeline: Modular & Reproducible](https://img.shields.io/badge/Pipeline-Modular_%26_Reproducible-00838F?style=flat-square)]()
+[![Layer: Data & Observational Inference](https://img.shields.io/badge/Repo_Scope-Data_%26_Prevalence_Layer-455A64?style=flat-square)]()
 ## 1. Overview
 
 This project investigates the dominant transmission mechanisms of Banana Bunchy Top Disease (BBTD) in Benin using a spatially explicit stochastic metapopulation framework.
