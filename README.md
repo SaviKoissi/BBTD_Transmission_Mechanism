@@ -1,6 +1,9 @@
 # Tracing the Pathways of Banana Bunchy Top Disease in Benin
 <u> </u>
-
+[![R](https://img.shields.io/badge/R-4.3%2B-276DC3?style=for-the-badge&logo=r&logoColor=white)](https://www.r-project.org/)
+[![CMIP6](https://img.shields.io/badge/Mod%C3%A8les-CMIP6_Multi--Sc%C3%A9narios-2E8B57?style=for-the-badge)](https://pcmdi.llnl.gov/CMIP6/)
+[![SIG](https://img.shields.io/badge/SIG-sf_%7C_terra_%7C_ggplot2-D97706?style=for-the-badge)](#)
+[![Zone d'étude](https://img.shields.io/badge/Couverture-8_ZAE_du_B%C3%A9nin-0F766E?style=for-the-badge)](#)
 ## 1. Overview
 
 This project investigates the dominant transmission mechanisms of Banana Bunchy Top Disease (BBTD) in Benin using a spatially explicit stochastic metapopulation framework.
